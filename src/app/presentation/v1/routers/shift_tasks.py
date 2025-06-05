@@ -22,7 +22,7 @@ def create_shift_tasks(
     repo = ShiftTaskRepositorySQLAlchemy(db)
     service = ShiftTaskService(repo)
 
-    tasks_data = [task.dict() for task in tasks_in]
+    tasks_data = [task.model_dump() for task in tasks_in]
 
     try:
         created_objects = service.create_shift_tasks(tasks_data)
