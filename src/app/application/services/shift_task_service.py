@@ -36,3 +36,9 @@ class ShiftTaskService:
 
     def list_all(self, skip: int = 0, limit: int = 100) -> List[ShiftTask]:
         return self._repo.list_all(skip=skip, limit=limit)
+
+    def get_shift_task(self, task_id: int = 0):
+        task = self._repo.get(task_id)
+        if task is None:
+            raise DomainError(f"ShiftTask с task_id = {task_id} не найден.")
+        return task

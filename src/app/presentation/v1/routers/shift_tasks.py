@@ -11,7 +11,9 @@ from src.app.domain.exceptions import DomainError
 router = APIRouter(prefix="/shift-tasks", tags=["Shift Tasks"])
 
 @router.post(
-    "/", response_model=List[ShiftTaskRead], status_code=status.HTTP_201_CREATED
+    "/",
+    response_model=List[ShiftTaskRead],
+    status_code=status.HTTP_201_CREATED
 )
 def create_shift_tasks(
         tasks_in: List[ShiftTaskCreate],
@@ -48,4 +50,34 @@ def create_shift_tasks(
         )
 
     return result
+
+@router.get("/{task_id}",
+            response_model=ShiftTaskRead,
+            status_code=status.HTTP_200_OK
+           )
+def get_shift_task_by_id(task_id: int, db: Session = Depends(get_bd)):
+    repo = ShiftTaskRepositorySQLAlchemy(db)
+    service = ShiftTaskService(repo)
+
+    try:
+        dom = service.get_shift_task(task_id)
+    except DomainError as exception:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exception))
+
+    return ShiftTaskRead(
+        id=dom.id,
+        is_closed=dom.is_closed,
+        task_description=dom.task_description,
+        work_center=dom.work_center,
+        shift=dom.shift,
+        team_name=dom.team_name,
+        batch_id=dom.batch_id,
+        batch_date=dom.batch_date,
+        nomenclature=dom.nomenclature,
+        ekn_code=dom.ekn_code,
+        rc_id=dom.rc_id,
+        shift_start=dom.shift_start,
+        shift_end=dom.shift_end,
+    )
+
 
