@@ -8,7 +8,7 @@ from src.app.infrastructure.db.repositories.shift_task_repo_sqlalchemy import Sh
 from src.app.application.services.shift_task_service import ShiftTaskService
 from src.app.domain.exceptions import DomainError
 
-router = APIRouter(prefix="/shift-tasks", tags=["shift-tasks"])
+router = APIRouter(prefix="/shift-tasks", tags=["Shift Tasks"])
 
 @router.post(
     "/", response_model=List[ShiftTaskRead], status_code=status.HTTP_201_CREATED
