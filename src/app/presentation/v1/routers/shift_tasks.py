@@ -2,7 +2,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from src.app.presentation.v1.schemas.shift_task import ShiftTaskCreate, ShiftTaskRead
+from src.app.presentation.v1.schemas.shift_task import ShiftTaskCreate, ShiftTaskRead, ShiftTaskUpdate
 from src.app.infrastructure.db.session import get_bd
 from src.app.infrastructure.db.repositories.shift_task_repo_sqlalchemy import ShiftTaskRepositorySQLAlchemy
 from src.app.application.services.shift_task_service import ShiftTaskService
@@ -80,4 +80,36 @@ def get_shift_task_by_id(task_id: int, db: Session = Depends(get_bd)):
         shift_end=dom.shift_end,
     )
 
+@router.patch("/{task_id}",
+              response_model=ShiftTaskRead,
+              status_code=status.HTTP_200_OK)
+def update_shift_task(
+        task_id: int,
+        task_in: ShiftTaskUpdate,
+        db: Session = Depends(get_bd)
+):
+    repo = ShiftTaskRepositorySQLAlchemy(db)
+    service = ShiftTaskService(repo)
 
+    updates = task_in.model_dump(exclude_unset=True)
+
+    try:
+        dom = service.update_shift_task(task_id, updates)
+    except DomainError as exception:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exception))
+
+    return ShiftTaskRead(
+        id=dom.id,
+        is_closed=dom.is_closed,
+        task_description=dom.task_description,
+        work_center=dom.work_center,
+        shift=dom.shift,
+        team_name=dom.team_name,
+        batch_id=dom.batch_id,
+        batch_date=dom.batch_date,
+        nomenclature=dom.nomenclature,
+        ekn_code=dom.ekn_code,
+        rc_id=dom.rc_id,
+        shift_start=dom.shift_start,
+        shift_end=dom.shift_end,
+    )

@@ -15,3 +15,6 @@ class IShiftTaskRepository(ABC):
     @abstractmethod
     def get(self, task_id: int) -> Optional[ShiftTask]:
         raise NotImplementedError
+
+    def update(self, task_id: int, updates: dict) -> ShiftTask:
+        raise NotImplementedError

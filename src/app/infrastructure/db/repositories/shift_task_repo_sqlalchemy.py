@@ -24,6 +24,23 @@ class ShiftTaskORM(Base):
     shift_start = Column(DateTime, nullable=False)
     shift_end = Column(DateTime, nullable=False)
 
+    def to_domain(self) -> DomainShiftTask:
+        return DomainShiftTask(
+            id=self.id,
+            is_closed=self.is_closed,
+            task_description=self.task_description,
+            work_center=self.work_center,
+            shift=self.shift,
+            team_name=self.team_name,
+            batch_id=self.batch_id,
+            batch_date=self.batch_date,
+            nomenclature=self.nomenclature,
+            ekn_code=self.ekn_code,
+            rc_id=self.rc_id,
+            shift_start=self.shift_start,
+            shift_end=self.shift_end,
+        )
+
 
 class ShiftTaskRepositorySQLAlchemy(IShiftTaskRepository):
     def __init__(self, db_session: Session):
@@ -54,63 +71,24 @@ class ShiftTaskRepositorySQLAlchemy(IShiftTaskRepository):
         for orm in orm_objects:
             self._db.refresh(orm)
 
-        result: List[DomainShiftTask] = []
-        for orm in orm_objects:
-            dom = DomainShiftTask(
-                id=orm.id,
-                is_closed=orm.is_closed,
-                task_description=orm.task_description,
-                work_center=orm.work_center,
-                shift=orm.shift,
-                team_name=orm.team_name,
-                batch_id=orm.batch_id,
-                batch_date=orm.batch_date,
-                nomenclature=orm.nomenclature,
-                ekn_code=orm.ekn_code,
-                rc_id=orm.rc_id,
-                shift_start=orm.shift_start,
-                shift_end=orm.shift_end,
-            )
-            result.append(dom)
-        return result
+        return [orm.to_domain() for orm in orm_objects]
+
 
     def list_all(self, skip: int = 0, limit: int = 100) -> List[DomainShiftTask]:
         rows = self._db.query(ShiftTaskORM).offset(skip).limit(limit).all()
-        return [
-            DomainShiftTask(
-                id=row.id,
-                is_closed=row.is_closed,
-                task_description=row.task_description,
-                work_center=row.work_center,
-                shift=row.shift,
-                team_name=row.team_name,
-                batch_id=row.batch_id,
-                batch_date=row.batch_date,
-                nomenclature=row.nomenclature,
-                ekn_code=row.ekn_code,
-                rc_id=row.rc_id,
-                shift_start=row.shift_start,
-                shift_end=row.shift_end,
-            )
-            for row in rows
-        ]
+        return [row.to_domain() for row in rows]
 
     def get(self, task_id: int) -> Optional[DomainShiftTask]:
-        row = self._db.query(ShiftTaskORM).filter(ShiftTaskORM.id == task_id).first()
-        if not row:
-            return None
-        return DomainShiftTask(
-            id=row.id,
-            is_closed=row.is_closed,
-            task_description=row.task_description,
-            work_center=row.work_center,
-            shift=row.shift,
-            team_name=row.team_name,
-            batch_id=row.batch_id,
-            batch_date=row.batch_date,
-            nomenclature=row.nomenclature,
-            ekn_code=row.ekn_code,
-            rc_id=row.rc_id,
-            shift_start=row.shift_start,
-            shift_end=row.shift_end,
-        )
+        orm : ShiftTaskORM = self._db.query(ShiftTaskORM).filter(ShiftTaskORM.id == task_id).first()
+        return orm.to_domain() if orm else None
+
+    def update(self, task_id: int, updates: dict) -> DomainShiftTask:
+        orm : ShiftTaskORM = self._db.query(ShiftTaskORM).filter(ShiftTaskORM.id == task_id).first()
+
+        for key, value in updates.items():
+            setattr(orm, key, value)
+
+        self._db.commit()
+        self._db.refresh(orm)
+
+        return orm.to_domain()

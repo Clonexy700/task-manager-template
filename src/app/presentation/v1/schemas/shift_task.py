@@ -29,16 +29,16 @@ class ShiftTaskRead(ShiftTaskBase):
         orm_mode = True
 
 class ShiftTaskUpdate(ShiftTaskBase):
-    is_closed: Optional[bool] = None
-    task_description: Optional[str] = None
-    work_center: Optional[str] = None
-    shift: Optional[str] = None
-    team_name: Optional[str] = None
-    batch_id: Optional[int] = None
-    batch_date: Optional[date] = None
-    nomenclature: Optional[str] = None
-    ekn_code: Optional[int] = None
-    rc_id: Optional[int] = None
-    shift_start: Optional[datetime] = None
-    shift_end: Optional[datetime] = None
+    is_closed: Optional[bool] = Field(None, description="Статус закрытия")
+    task_description: Optional[str] = Field(None, description="Описание задания на смену")
+    work_center: Optional[str] = Field(None, description="Рабочий центр")
+    shift: Optional[str] = Field(None, description="Смена")
+    team_name: Optional[str] = Field(None, description="Бригада")
+    batch_id: Optional[int] = Field(None, description="Номер партии")
+    batch_date: Optional[date] = Field(None, description="Дата партии")
+    nomenclature: Optional[str] = Field(None, description="Номенклатура")
+    ekn_code: Optional[int] = Field(None, description="Код ЕКН")
+    rc_id: Optional[int] = Field(None, description="Идентификатор РЦ")
+    shift_start: Optional[datetime] = Field(None, description="Дата начала смены")
+    shift_end: Optional[datetime] = Field(None, description="Дата окончания смены")
 

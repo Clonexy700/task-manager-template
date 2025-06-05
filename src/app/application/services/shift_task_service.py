@@ -1,5 +1,7 @@
 from typing import List
 
+from datetime import datetime, UTC
+
 from src.app.application.interfaces.shift_task_repo import IShiftTaskRepository
 from src.app.domain.exceptions import DomainError
 from src.app.domain.models.shift_task import ShiftTask
@@ -42,3 +44,12 @@ class ShiftTaskService:
         if task is None:
             raise DomainError(f"ShiftTask с task_id = {task_id} не найден.")
         return task
+
+    def update_shift_task(self, task_id: int, updates: dict) -> ShiftTask:
+        task = self.get_shift_task(task_id)
+
+        if "is_closed" in updates:
+            is_closed = updates["is_closed"]
+            updates["closed_at"] = datetime.now(UTC) if is_closed else None
+
+        return self._repo.update(task_id, updates)
