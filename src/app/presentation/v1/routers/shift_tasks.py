@@ -9,6 +9,7 @@ from src.app.infrastructure.db.session import get_bd
 from src.app.infrastructure.db.repositories.shift_task_repo_sqlalchemy import ShiftTaskRepositorySQLAlchemy
 from src.app.application.services.shift_task_service import ShiftTaskService
 from src.app.domain.exceptions import DomainError
+from src.app.utils.transform import domain_to_read, domains_to_read_list
 
 router = APIRouter(prefix="/shift-tasks", tags=["Shift Tasks"])
 
@@ -31,27 +32,7 @@ def create_shift_tasks(
     except DomainError as exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exception))
 
-    result = []
-    for dom in created_objects:
-        result.append(
-            ShiftTaskRead(
-                id=dom.id,
-                is_closed=dom.is_closed,
-                task_description=dom.task_description,
-                work_center=dom.work_center,
-                shift=dom.shift,
-                team_name=dom.team_name,
-                batch_id=dom.batch_id,
-                batch_date=dom.batch_date,
-                nomenclature=dom.nomenclature,
-                ekn_code=dom.ekn_code,
-                rc_id=dom.rc_id,
-                shift_start=dom.shift_start,
-                shift_end=dom.shift_end,
-            )
-        )
-
-    return result
+    return domains_to_read_list(created_objects)
 
 @router.get("/{task_id}",
             response_model=ShiftTaskRead,
@@ -66,21 +47,7 @@ def get_shift_task_by_id(task_id: int, db: Session = Depends(get_bd)):
     except DomainError as exception:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exception))
 
-    return ShiftTaskRead(
-        id=dom.id,
-        is_closed=dom.is_closed,
-        task_description=dom.task_description,
-        work_center=dom.work_center,
-        shift=dom.shift,
-        team_name=dom.team_name,
-        batch_id=dom.batch_id,
-        batch_date=dom.batch_date,
-        nomenclature=dom.nomenclature,
-        ekn_code=dom.ekn_code,
-        rc_id=dom.rc_id,
-        shift_start=dom.shift_start,
-        shift_end=dom.shift_end,
-    )
+    return domain_to_read(dom)
 
 @router.get("/",
             response_model=List[ShiftTaskRead],
@@ -121,24 +88,8 @@ def get_shift_tasks(
         )
     except DomainError as exception:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exception))
-    return [
-        ShiftTaskRead(
-            id=dom.id,
-            is_closed=dom.is_closed,
-            task_description=dom.task_description,
-            work_center=dom.work_center,
-            shift=dom.shift,
-            team_name=dom.team_name,
-            batch_id=dom.batch_id,
-            batch_date=dom.batch_date,
-            nomenclature=dom.nomenclature,
-            ekn_code=dom.ekn_code,
-            rc_id=dom.rc_id,
-            shift_start=dom.shift_start,
-            shift_end=dom.shift_end,
-        )
-        for dom in tasks
-    ]
+
+    return domains_to_read_list(tasks)
 
 @router.patch("/{task_id}",
               response_model=ShiftTaskRead,
@@ -158,18 +109,4 @@ def update_shift_task(
     except DomainError as exception:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exception))
 
-    return ShiftTaskRead(
-        id=dom.id,
-        is_closed=dom.is_closed,
-        task_description=dom.task_description,
-        work_center=dom.work_center,
-        shift=dom.shift,
-        team_name=dom.team_name,
-        batch_id=dom.batch_id,
-        batch_date=dom.batch_date,
-        nomenclature=dom.nomenclature,
-        ekn_code=dom.ekn_code,
-        rc_id=dom.rc_id,
-        shift_start=dom.shift_start,
-        shift_end=dom.shift_end,
-    )
+    return domain_to_read(dom)
