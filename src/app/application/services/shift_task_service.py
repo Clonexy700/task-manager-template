@@ -1,6 +1,6 @@
-from typing import List
+from typing import List, Optional
 
-from datetime import datetime, UTC
+from datetime import datetime, UTC, date
 
 from src.app.application.interfaces.shift_task_repo import IShiftTaskRepository
 from src.app.domain.exceptions import DomainError
@@ -36,8 +36,35 @@ class ShiftTaskService:
         saved = self._repo.add_many(domain_objects)
         return saved
 
-    def list_all(self, skip: int = 0, limit: int = 100) -> List[ShiftTask]:
-        return self._repo.list_all(skip=skip, limit=limit)
+    def list_all(self, * ,
+                 is_closed: Optional[bool] = None,
+                 batch_id: Optional[int] = None,
+                 batch_date: Optional[date] = None,
+                 work_center: Optional[str] = None,
+                 shift: Optional[str] = None,
+                 team_name: Optional[str] = None,
+                 nomenclature: Optional[str] = None,
+                 ekn_code: Optional[int] = None,
+                 rc_id: Optional[int] = None,
+                 shift_start: Optional[datetime] = None,
+                 shift_end: Optional[datetime] = None,
+                 skip: int = 0,
+                 limit: int = 100) -> List[ShiftTask]:
+        return self._repo.list_all(
+            is_closed=is_closed,
+            batch_id=batch_id,
+            batch_date=batch_date,
+            work_center=work_center,
+            shift=shift,
+            team_name=team_name,
+            nomenclature=nomenclature,
+            ekn_code=ekn_code,
+            rc_id=rc_id,
+            shift_start=shift_start,
+            shift_end=shift_end,
+            skip=skip,
+            limit=limit,
+        )
 
     def get_shift_task(self, task_id: int = 0):
         task = self._repo.get(task_id)

@@ -1,10 +1,12 @@
 from typing import List, Optional
+from datetime import datetime, date
 
 from sqlalchemy.orm import Session
 from sqlalchemy import  Column, Integer, String, Boolean, Date, DateTime
+from sqlalchemy import and_
 
 from src.app.application.interfaces.shift_task_repo import IShiftTaskRepository
-from src.app.domain.models.shift_task import ShiftTask as DomainShiftTask, ShiftTask
+from src.app.domain.models.shift_task import ShiftTask as DomainShiftTask
 from src.app.infrastructure.db.base import Base
 
 class ShiftTaskORM(Base):
@@ -74,8 +76,44 @@ class ShiftTaskRepositorySQLAlchemy(IShiftTaskRepository):
         return [orm.to_domain() for orm in orm_objects]
 
 
-    def list_all(self, skip: int = 0, limit: int = 100) -> List[DomainShiftTask]:
-        rows = self._db.query(ShiftTaskORM).offset(skip).limit(limit).all()
+    def list_all(self, * ,
+                 is_closed: Optional[bool] = None,
+                 batch_id: Optional[int] = None,
+                 batch_date: Optional[date] = None,
+                 work_center: Optional[str] = None,
+                 shift: Optional[str] = None,
+                 team_name: Optional[str] = None,
+                 nomenclature: Optional[str] = None,
+                 ekn_code: Optional[int] = None,
+                 rc_id: Optional[int] = None,
+                 shift_start: Optional[datetime] = None,
+                 shift_end: Optional[datetime] = None,
+                 skip: int = 0,
+                 limit: int = 100) -> List[DomainShiftTask]:
+        query = self._db.query(ShiftTaskORM)
+        filter_map = {
+            "is_closed": ShiftTaskORM.is_closed,
+            "batch_id": ShiftTaskORM.batch_id,
+            "batch_date": ShiftTaskORM.batch_date,
+            "work_center": ShiftTaskORM.work_center,
+            "shift": ShiftTaskORM.shift,
+            "team_name": ShiftTaskORM.team_name,
+            "nomenclature": ShiftTaskORM.nomenclature,
+            "ekn_code": ShiftTaskORM.ekn_code,
+            "rc_id": ShiftTaskORM.rc_id,
+            "shift_start": ShiftTaskORM.shift_start,
+            "shift_end": ShiftTaskORM.shift_end,
+        }
+        filters = []
+        for attr_name, column in filter_map.items():
+            value = locals().get(attr_name)
+            if value is not None:
+                filters.append(column == value)
+
+        if filters:
+            query = query.filter(and_(*filters))
+
+        rows = query.offset(skip).limit(limit).all()
         return [row.to_domain() for row in rows]
 
     def get(self, task_id: int) -> Optional[DomainShiftTask]:
