@@ -36,6 +36,20 @@ class ProductRepositorySQLAlchemy(IProductRepository):
         )
         return row.to_domain() if row else None
 
+    def get_by_id(self, product_id: int) -> Optional[DomainProduct]:
+        row = self._db.query(ProductORM).get(product_id)
+        return row.to_domain() if row else None
+
     def list_all(self, skip: int = 0, limit: int = 100) -> List[DomainProduct]:
         rows = self._db.query(ProductORM).offset(skip).limit(limit).all()
         return [row.to_domain() for row in rows]
+
+    def update_by_id(self, product_id: int, updates: dict) -> Product:
+        orm = self._db.query(ProductORM).get(product_id)
+        if not orm:
+            raise ValueError(f"Product {product_id} not found")
+        for key, value in updates.items():
+            setattr(orm, key, value)
+        self._db.commit()
+        self._db.refresh(orm)
+        return orm.to_domain()

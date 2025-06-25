@@ -41,3 +41,25 @@ class ProductsService:
 
         saved = self._product_repo.add_many(domain_objects)
         return saved
+
+    def aggregate_product(self, batch_pk: int, product_id: int) -> Product:
+        product = self._product_repo.get_by_id(product_id)
+        if not product:
+            raise DomainError("Product not found")
+
+        if product.batch_id != batch_pk:
+            raise DomainError("Batch id mismatch")
+
+        if product.is_aggregated:
+            at = product.aggregated_at.isoformat() if product.aggregated_at else ""
+            raise DomainError(f"Product has already been aggregated at: {at}")
+
+        now = datetime.now(timezone.utc)
+
+        updates = {
+            "is_aggregated": True,
+            "aggregated_at": now,
+        }
+
+        updated = self._product_repo.update_by_id(product_id, updates)
+        return updated
