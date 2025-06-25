@@ -42,8 +42,8 @@ class ProductsService:
         saved = self._product_repo.add_many(domain_objects)
         return saved
 
-    def aggregate_product(self, batch_pk: int, product_id: int) -> Product:
-        product = self._product_repo.get_by_id(product_id)
+    def aggregate_product(self, batch_pk: int, unique_code: str) -> Product:
+        product = self._product_repo.get_by_code(unique_code)
         if not product:
             raise DomainError("Product not found")
 
@@ -61,5 +61,5 @@ class ProductsService:
             "aggregated_at": now,
         }
 
-        updated = self._product_repo.update_by_id(product_id, updates)
+        updated = self._product_repo.update_by_id(product.id, updates)
         return updated

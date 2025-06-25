@@ -17,7 +17,7 @@ from src.app.application.services.product_service import ProductsService
 from src.app.domain.exceptions import DomainError
 from src.app.utils.transform import domain_to_read, domains_to_read_list
 
-router = APIRouter(prefix="/products", tags=["Products"])
+router = APIRouter(tags=["Products"])
 
 @router.post("/",
              response_model=List[ProductRead],
@@ -53,7 +53,7 @@ def aggregate_product(
     service = ProductsService(product_repo, shift_task_repo)
 
     try:
-        updated = service.aggregate_product(request.batch_pk, request.product_id)
+        updated = service.aggregate_product(request.batch_pk, request.unique_code)
     except DomainError as e:
         msg = str(e)
         if msg == "Product not found":

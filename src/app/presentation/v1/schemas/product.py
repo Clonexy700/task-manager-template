@@ -9,7 +9,7 @@ class ProductCreate(BaseModel):
 
 class ProductAggregateRequest(BaseModel):
     batch_pk: int = Field(..., description="Номер партии (shift_task.id)")
-    product_id: int = Field(..., description="Идентификатор продукта")
+    unique_code: str = Field(..., description="Уникальный код продукта")
 
 class ProductAggregateResponse(BaseModel):
     unique_code: str = Field(..., description="Уникальный код продукта после агрегации")

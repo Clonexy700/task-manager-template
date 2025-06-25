@@ -11,7 +11,7 @@ from src.app.application.services.shift_task_service import ShiftTaskService
 from src.app.domain.exceptions import DomainError
 from src.app.utils.transform import domain_to_read, domains_to_read_list
 
-router = APIRouter(prefix="/shift-tasks", tags=["Shift Tasks"])
+router = APIRouter(tags=["Shift Tasks"])
 
 @router.post(
     "/",
