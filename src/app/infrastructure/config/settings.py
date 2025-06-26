@@ -1,25 +1,17 @@
 from pydantic_settings import BaseSettings
+from pydantic import Field
 
-
-class PostgreSQLSettings(BaseSettings):
-    """
-    f"postgresql://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}"
-    f"@{self.DB_HOST}:{self.DB_PORT}/"
-    f"{self.POSTGRES_DB_NAME}"
-    """
-    POSTGRES_USER: str = 'postgresql'
-    POSTGRES_PASSWORD: str = "1234"
-    POSTGRES_DB_NAME: str = 'postgresql'
-    DB_HOST: str = "localhost"
-    DB_PORT: int = 5432
-
-    @property
-    def DATABASE_URL(self) -> str:
-        return (
-            "sqlite:///./test.db")
+class Settings(BaseSettings):
+    """Application settings, в том числе URL БД."""
+    DATABASE_URL: str = Field(
+        "sqlite:///./test.db",
+        description="URL базы данных (например, SQLite или Postgres)"
+    )
 
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "allow"  # чтобы не падать на лишних переменных из .env
 
-settings = PostgreSQLSettings()
+# Создаём экземпляр настроек
+settings = Settings()
